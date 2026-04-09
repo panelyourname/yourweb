@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Seleng VIP — panel</title>
+<style>
+  :root{
+    --bg:#070607;
+    --panel:#0b0b0b;
+    --accent:#ff1f2f;
+    --glow:0 6px 30px rgba(255,31,47,0.25);
+    --toggle-on:#30e07a;
+    --glass:rgba(255,255,255,2);
+    --muted:rgba(255,255,255,0.55);
+    font-family:Inter,Roboto,Arial,sans-serif;
+  }
+
+  html,body{
+    height:100%;margin:0;background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(255,31,47,0.05), transparent 5%),
+      radial-gradient(800px 400px at 90% 90%, rgba(255,31,47,0.02), transparent 10%),
+      var(--bg);
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  .panel{
+    width:360px;max-width:94vw;
+    background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+    border-radius:18px;padding:18px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.6),var(--glow);
+    border:1px solid rgba(255,31,47,0.12);
+    color:#fff;position:relative;overflow:hidden;
+  }
+
+  .panel::before{
+    content:"";position:absolute;inset:0;
+    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900"><g fill="none" stroke="%23ff1f2f" opacity="0.025" stroke-width="1"><path d="M10 800 L520 20"/><path d="M100 20 L520 780"/><path d="M300 0 L300 900"/></g></svg>');
+    mix-blend-mode:overlay;opacity:0.6;pointer-events:none;
+  }
+
+  .header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+  .brand{
+    width:48px;height:48px;border-radius:10px;
+    background:linear-gradient(135deg,rgba(255,31,47,0.2),rgba(255,31,47,0.08));
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,31,47,0.15);
+    box-shadow:0 6px 18px rgba(255,31,47,0.08);
+  }
+  .brand svg{filter:drop-shadow(0 2px 6px rgba(255,31,47,0.5));}
+  .title{flex:1;display:flex;flex-direction:column;}
+  .title h1{font-size:16px;margin:0;color:var(--accent);text-shadow:0 2px 10px rgba(255,31,47,0.2);}
+  .title p{margin:0;font-size:12px;color:var(--muted);}
+
+  .tabs{display:flex;gap:8px;margin:10px 0 14px;}
+  .tab{
+    flex:1;padding:8px 10px;border-radius:999px;
+    background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.02);
+    text-align:center;font-weight:600;font-size:13px;color:#fff;cursor:pointer;
+  }
+  .tab.active{
+    background:linear-gradient(90deg,rgba(255,31,47,0.18),rgba(255,31,47,0.12));
+    box-shadow:0 6px 20px rgba(255,31,47,0.08);
+  }
+
+  .options{display:flex;flex-direction:column;gap:12px;padding:6px 2px;}
+  .opt{
+    display:flex;align-items:center;justify-content:space-between;
+    background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.007));
+    padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);
+  }
+  .opt .left{display:flex;align-items:center;gap:0;min-width:0;}
+  
+  .label input{
+    background:transparent;border:0;color:white;font-size:14px;font-weight:600;
+    outline:none;width:100%;
+  }
+  .label small{font-size:11px;color:var(--muted);}
+  .toggle{
+    --w:54px;--h:28px;width:var(--w);height:var(--h);
+    border-radius:999px;padding:3px;
+    background:rgba(255,255,255,0.06);
+    display:flex;align-items:center;
+    transition:all .18s;cursor:pointer;
+    border:1px solid rgba(255,255,255,0.2);
+  }
+  .toggle .knob{
+    width:22px;height:22px;border-radius:50%;background:white;
+    transform:translateX(0);transition:all .18s;
+    box-shadow:0 4px 12px rgba(0,0,0,0.6);
+  }
+  .toggle.on{background:linear-gradient(90deg,rgba(48,224,122,0.15),rgba(48,224,122,0.06));}
+  .toggle.on .knob{transform:translateX(26px);background:var(--toggle-on);}
+
+  .footer{margin-top:12px;font-size:12px;color:var(--muted);
+          display:flex;justify-content:space-between;align-items:center;}
+  .small-btn{
+    background:transparent;border:1px dashed rgba(255,255,255,0.04);
+    padding:6px 8px;border-radius:8px;font-size:12px;color:var(--muted);cursor:pointer;
+  }
+  .save-btn{
+    background:linear-gradient(90deg,rgba(255,31,47,0.18),rgba(255,31,47,0.06));
+    color:white;border:0;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:700;
+  }
+
+  /* надпись coming soon */
+  .coming-soon{
+    text-align:center;padding:50px 0;color:var(--muted);
+    font-weight:700;letter-spacing:2px;text-transform:uppercase;
+    font-size:15px;text-shadow:0 0 12px rgba(255,31,47,0.25);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:0.5;}50%{opacity:1;}
+  }
+
+/* RGB BORDER */
+.panel{
+  z-index:0;
+}
+
+.panel::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:20px;
+
+  background:linear-gradient(270deg,
+    rgba(255,0,0,0.15),
+    rgba(255,165,0,0.15),
+    rgba(255,255,0,0.15),
+    rgba(0,255,0,0.15),
+    rgba(0,255,255,0.15),
+    rgba(0,0,255,0.15),
+    rgba(238,130,238,0.15),
+    rgba(255,0,0,0.15)
+  );
+
+  background-size:400% 400%;
+  animation:rgbBorder 10s linear infinite;
+
+  z-index:-1;
+  filter: blur(14px);   /* เบลอหนัก */
+  opacity:0.25;         /* จางจริง */
+}
+#savePopup{
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,0.7);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+#saveBox{
+background:#111;
+padding:30px;
+border-radius:12px;
+text-align:center;
+color:#fff;
+font-size:24px;
+}
+</style>
+</head>
+<body>
+<div id="savePopup">
+  <div id="saveBox">
+    <p id="count">0%</p>
+    <p id="doneText" style="display:none;">บันทึกสำเร็จ</p>
+  </div>
+</div>
+<div id="loginScreen" style="
+position:fixed;inset:0;
+background:#070607;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+z-index:9999;
+color:white;
+font-family:Inter,Arial;
+">
+<h1 style="color:#ff1f2f;margin-bottom:10px;">กรอกรหัสผ่าน</h1>
+<input id="passwordInput" placeholder="พิมพ์" style="padding:12px 14px;border-radius:10px;border:none;margin:10px;width:200px;" type="password"/>
+<button onclick="checkPassword()" style="padding:10px 20px;border:none;border-radius:10px;background:#ff1f2f;color:white;font-weight:700;">
+    ยืนยัน
+  </button>
+<p id="errorText" style="color:red;margin-top:10px;"></p>
+</div>
+<div class="panel">
+<div class="header">
+<div class="title">
+<h1>ʏᴏᴜʀ ɴᴀᴍᴇ ᴘᴀɴᴇʟ</h1>
+<p>พาเเนลBY...เครดิตคุณ</p>
+</div>
+</div>
+<div class="tabs">
+<div class="tab active" data-tab="aim">หน้าหลัก🇹🇭</div>
+</div>
+<div class="options" id="optionsList"></div>
+<div class="footer">
+<div style="display:flex;gap:8px;align-items:center">
+<button class="small-btn" id="resetBtn">
+	  </button>
+<div style="font-size:11px;color:var(--muted)"></div>
+</div>
+<button class="save-btn" id="saveBtn">Save</button>
+</div>
+</div>
+<script>
+const defaultData={
+  activeTab:'aim',
+  options:{
+    aim:[
+      {id:'xiter_aimbot',name:'ดูดหัว80%',enabled:false},
+	  {id:'xiter',name:'ล็อคFPS',enabled:false},
+      {id:'drag',name:'DPI160',enabled:false},
+      {id:'norecoil',name:'กระสุนลูกซองตรง',enabled:false},
+	  {id:'เย็ดตูด',name:'กันดำ',enabled:false},
+      {id:'aim180',name:'กันรีพอต',enabled:false}
+    ]
+  }
+};
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem('strike_vip_state');
+    if(!raw) return JSON.parse(JSON.stringify(defaultData));
+    const st=JSON.parse(raw);
+    return {...defaultData,...st};
+  }catch{return JSON.parse(JSON.stringify(defaultData));}
+}
+
+function saveState(s){
+  localStorage.setItem('strike_vip_state',JSON.stringify(s));
+  const btn=document.getElementById('saveBtn');
+  btn.textContent='Saved!';setTimeout(()=>btn.textContent='Save',900);
+}
+
+const optionsList=document.getElementById('optionsList');
+localStorage.removeItem('strike_vip_state');
+let state=loadState();
+
+function render(){
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('active',t.dataset.tab===state.activeTab);
+  });
+  optionsList.innerHTML='';
+
+  if(state.activeTab==='snipers'||state.activeTab==='speed'){
+    const msg=document.createElement('div');
+    msg.className='coming-soon';
+    msg.textContent='รอ...';
+    optionsList.appendChild(msg);
+    return;
+  }
+
+  const list=state.options.aim;
+  list.forEach(opt=>{
+    const item=document.createElement('div');
+    item.className='opt';
+    item.innerHTML=`
+      <div class="left">
+        
+        <div class="label">
+          <input type="text" data-id="${opt.id}" value="${opt.name}">
+          
+        </div>
+      </div>
+      <div class="toggle ${opt.enabled?'on':''}" data-id="${opt.id}">
+        <div class="knob"></div>
+      </div>`;
+    optionsList.appendChild(item);
+  });
+
+  document.querySelectorAll('.toggle').forEach(el=>el.onclick=toggleHandler);
+  document.querySelectorAll('.label input').forEach(inp=>{
+    inp.onchange=nameHandler;inp.onblur=nameHandler;
+  });
+}
+
+function toggleHandler(){
+  const id=this.dataset.id;
+  const opt=state.options.aim.find(o=>o.id===id);
+  if(opt) opt.enabled=!opt.enabled;
+  saveState(state);render();
+}
+function nameHandler(){
+  const id=this.dataset.id;
+  const opt=state.options.aim.find(o=>o.id===id);
+  if(opt) opt.name=this.value.trim()||'Без названия';
+  saveState(state);render();
+}
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{state.activeTab=t.dataset.tab;saveState(state);render();}
+});
+document.getElementById('saveBtn').onclick=()=>saveState(state);
+document.getElementById('resetBtn').onclick=()=>{
+  if(confirm('Сбросить настройки к дефолту?')){
+    state=JSON.parse(JSON.stringify(defaultData));
+    saveState(state);render();
+  }
+};
+
+render();
+
+const correctPassword = "apz";
+
+function checkPassword(){
+  const input = document.getElementById('passwordInput').value;
+  const errorText = document.getElementById('errorText');
+
+  if(input === correctPassword){
+    document.getElementById('loginScreen').style.display = 'none';
+  }else{
+    errorText.textContent = "รหัสผ่านไม่ถูกต้อง";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  document.getElementById('passwordInput').addEventListener("keypress", function(e){
+    if(e.key === "Enter"){
+      checkPassword();
+    }
+  });
+});
+
+</script>
+
+
+<style>
+@keyframes pop{
+from{transform:scale(0.9);opacity:0;}
+to{transform:scale(1);opacity:1;}
+}
+
+/* RGB BORDER */
+.panel{
+  z-index:0;
+}
+
+.panel::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:20px;
+  background:linear-gradient(270deg, red,orange,yellow,lime,cyan,blue,violet,red);
+  background-size:400% 400%;
+  animation:rgbBorder 6s linear infinite;
+  z-index:-1;
+  filter: blur(6px);
+  opacity:0.8;
+}
+
+@keyframes rgbBorder{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+</style>
+
+<script>
+function openUID(){
+  document.getElementById("uidPopup").style.display = "flex";
+}
+function closeUID(){
+  document.getElementById("uidPopup").style.display = "none";
+}
+function submitUID(){
+  let uid = document.getElementById("uidInput").value;
+  if(uid.trim()===""){
+    alert("กรุณาใส่ UID");
+    return;
+  }
+  closeUID();
+  alert("เสร็จสิ้น");
+}
+
+
+window.onload = function(){
+  const saved = localStorage.getItem("uid");
+  if(saved){
+    document.getElementById("uidDisplay").innerText = "UID: " + saved;
+  }
+}
+</script>
+<script>
+<button onclick="startSave()">Save</button>
+  let count = 0;
+  document.getElementById("savePopup").style.display = "flex";
+
+  let interval = setInterval(()=>{
+    count++;
+    document.getElementById("count").innerText = count + "%";
+
+    if(count >= 100){
+      clearInterval(interval);
+      document.getElementById("count").style.display = "none";
+      document.getElementById("doneText").style.display = "block";
+
+      setTimeout(()=>{
+        document.getElementById("savePopup").style.display = "none";
+        document.getElementById("count").style.display = "block";
+        document.getElementById("doneText").style.display = "none";
+        document.getElementById("count").innerText = "0%";
+      },1500);
+    }
+  },20);
+}
+</script>
+</body>
+</html>
